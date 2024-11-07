@@ -6,6 +6,10 @@ import concurrent.futures
 import threading
 from tqdm import tqdm
 import platform
+import logging
+
+# Setup logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # SQLite Database Setup
 def setup_database():
@@ -34,7 +38,7 @@ def calculate_checksum(file_path, chunk_size=4096):
             for chunk in iter(lambda: f.read(chunk_size), b''):
                 hash_sha256.update(chunk)
     except Exception as e:
-        print(f"Error calculating checksum for {file_path}: {e}")
+        logging.error(f"Error calculating checksum for {file_path}: {e}")
         return None
     return hash_sha256.hexdigest()
 
@@ -46,6 +50,7 @@ def scan_directory(directory, conn):
         for file_name in files:
             file_path = os.path.join(root, file_name)
             if os.path.isfile(file_path):
+                logging.info(f"Scanning file: {file_path}")
                 file_size = os.path.getsize(file_path)
                 file_list.append((file_path, file_size))
 
@@ -129,9 +134,9 @@ def delete_duplicates(conn):
 def delete_file(file_path):
     try:
         os.unlink(file_path)
-        print(f"Deleted: {file_path}")
+        logging.info(f"Deleted: {file_path}")
     except Exception as e:
-        print(f"Error deleting {file_path}: {e}")
+        logging.error(f"Error deleting {file_path}: {e}")
 
 # Function to list available disks (Windows-specific implementation)
 def list_disks():
