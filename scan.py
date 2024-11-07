@@ -118,8 +118,9 @@ def delete_duplicates(conn):
             SELECT path FROM files WHERE checksum = ?
         ''', (checksum,))
         paths = cursor.fetchall()
-        # Keep one file, delete the rest
-        for path in paths[1:]:
+        # Keep one file (e.g., the first one based on alphabetical order of path), delete the rest
+        paths_sorted = sorted(paths, key=lambda x: x[0])
+        for path in paths_sorted[1:]:
             file_path = path[0]
             if input(f"Do you want to delete {file_path}? (y/n): ").lower() == 'y':
                 files_to_delete.append(file_path)
